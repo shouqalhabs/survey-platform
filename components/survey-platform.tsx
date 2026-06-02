@@ -38,35 +38,15 @@ import {
   Smile,
   Wrench,
   Package,
-  Copy,
-  Check,
-  Wand2,
+  Eye,
+  Edit3,
 } from "lucide-react"
 import { QRCodeModal } from "./qr-code-modal"
 import { AddFormModal } from "./add-form-modal"
 import type { MSForm, FormTemplate } from "@/lib/types"
 import { FORM_TEMPLATES } from "@/lib/types"
 
-const initialForms: MSForm[] = [
-  {
-    id: "1",
-    title: "تقييم الدورة التدريبية",
-    description: "نموذج لتقييم مستوى الرضا عن الدورات التدريبية",
-    formUrl: "https://forms.microsoft.com/r/example1",
-    createdAt: new Date().toISOString(),
-    category: "تقييم دورات",
-    responsesCount: 45,
-  },
-  {
-    id: "2", 
-    title: "استطلاع رضا العملاء",
-    description: "قياس مستوى رضا العملاء عن خدماتنا",
-    formUrl: "https://forms.microsoft.com/r/example2",
-    createdAt: new Date().toISOString(),
-    category: "رضا العملاء",
-    responsesCount: 128,
-  },
-]
+const initialForms: MSForm[] = []
 
 const categoryColors: Record<string, string> = {
   "تقييم دورات": "bg-blue-500",
@@ -96,6 +76,7 @@ const templateIcons: Record<string, React.ReactNode> = {
 }
 
 type ActiveView = "dashboard" | "templates" | "forms" | "analytics"
+type ModalType = "none" | "questions" | "create"
 
 export function SurveyPlatform() {
   const [forms, setForms] = useState<MSForm[]>(initialForms)
@@ -105,9 +86,10 @@ export function SurveyPlatform() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [activeView, setActiveView] = useState<ActiveView>("dashboard")
   const [selectedTemplate, setSelectedTemplate] = useState<FormTemplate | null>(null)
-  const [showTemplateModal, setShowTemplateModal] = useState(false)
+  const [modalType, setModalType] = useState<ModalType>("none")
   const [newFormName, setNewFormName] = useState("")
-  const [copiedQuestions, setCopiedQuestions] = useState(false)
+  const [newFormUrl, setNewFormUrl] = useState("")
+  const [createdForm, setCreatedForm] = useState<MSForm | null>(null)
 
   const filteredForms = forms.filter((form) => {
     return form.title.includes(searchQuery) || form.description.includes(searchQuery)
@@ -132,24 +114,65 @@ export function SurveyPlatform() {
     setShowQRModal(true)
   }
 
-  const handleSelectTemplate = (template: FormTemplate) => {
+  // فتح مودال الاطلاع على الأسئلة
+  const openQuestionsModal = (template: FormTemplate) => {
     setSelectedTemplate(template)
-    setNewFormName(template.title)
-    setShowTemplateModal(true)
-    setCopiedQuestions(false)
+    setModalType("questions")
   }
 
-  const handleCopyQuestions = () => {
-    if (selectedTemplate) {
-      const questionsText = selectedTemplate.questions.join("\n")
-      navigator.clipboard.writeText(questionsText)
-      setCopiedQuestions(true)
-      setTimeout(() => setCopiedQuestions(false), 2000)
+  // فتح مودال الإنشاء
+  const openCreateModal = (template: FormTemplate) => {
+    setSelectedTemplate(template)
+    setNewFormName("")
+    setNewFormUrl("")
+    setCreatedForm(null)
+    setModalType("create")
+  }
+
+  // فتح رابط تعديل القالب في MS Forms
+  const openEditTemplate = (template: FormTemplate) => {
+    if (template.templateUrl) {
+      window.open(template.templateUrl, "_blank")
+    } else {
+      // إذا لم يكن هناك رابط، افتح MS Forms الرئيسي
+      window.open("https://forms.microsoft.com/", "_blank")
     }
   }
 
-  const handleGenerateForm = () => {
-    window.open("https://forms.microsoft.com/", "_blank")
+  // إنشاء النموذج وإضافته للقائمة
+  const handleCreateForm = () => {
+    if (!selectedTemplate || !newFormName.trim() || !newFormUrl.trim()) return
+
+    const newForm: MSForm = {
+      id: Date.now().toString(),
+      title: newFormName,
+      description: selectedTemplate.description,
+      formUrl: newFormUrl,
+      createdAt: new Date().toISOString(),
+      category: selectedTemplate.category,
+      responsesCount: 0,
+    }
+    
+    setForms([newForm, ...forms])
+    setCreatedForm(newForm)
+  }
+
+  // الانتقال لنماذجي وعرض QR
+  const goToFormsAndShowQR = () => {
+    if (createdForm) {
+      setModalType("none")
+      setActiveView("forms")
+      setTimeout(() => {
+        setSelectedForm(createdForm)
+        setShowQRModal(true)
+      }, 100)
+    }
+  }
+
+  const closeModal = () => {
+    setModalType("none")
+    setSelectedTemplate(null)
+    setCreatedForm(null)
   }
 
   const sidebarItems = [
@@ -323,26 +346,28 @@ export function SurveyPlatform() {
             </div>
 
             {/* Recent Forms */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-slate-900">آخر النماذج</h3>
-                <Button variant="ghost" onClick={() => setActiveView("forms")} className="text-blue-600 hover:text-blue-700">
-                  عرض الكل
-                </Button>
+            {forms.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-slate-900">آخر النماذج</h3>
+                  <Button variant="ghost" onClick={() => setActiveView("forms")} className="text-blue-600 hover:text-blue-700">
+                    عرض الكل
+                  </Button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {forms.slice(0, 3).map((form) => (
+                    <FormCard
+                      key={form.id}
+                      form={form}
+                      onQRClick={() => openQRModal(form)}
+                      onDelete={() => handleDeleteForm(form.id)}
+                      categoryColors={categoryColors}
+                      categoryBadgeColors={categoryBadgeColors}
+                    />
+                  ))}
+                </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {forms.slice(0, 3).map((form) => (
-                  <FormCard
-                    key={form.id}
-                    form={form}
-                    onQRClick={() => openQRModal(form)}
-                    onDelete={() => handleDeleteForm(form.id)}
-                    categoryColors={categoryColors}
-                    categoryBadgeColors={categoryBadgeColors}
-                  />
-                ))}
-              </div>
-            </div>
+            )}
           </div>
         )}
 
@@ -351,15 +376,14 @@ export function SurveyPlatform() {
           <div className="space-y-8">
             <div>
               <h2 className="text-3xl font-bold text-slate-900">القوالب الجاهزة</h2>
-              <p className="text-slate-500 mt-1">اختر قالباً وأدخل اسم النموذج لتوليده في Microsoft Forms</p>
+              <p className="text-slate-500 mt-1">اختر قالباً لعرض أسئلته أو إنشاء نموذج جديد</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {FORM_TEMPLATES.map((template) => (
                 <Card 
                   key={template.id}
-                  className="bg-white border-0 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 cursor-pointer group overflow-hidden"
-                  onClick={() => handleSelectTemplate(template)}
+                  className="bg-white border-0 shadow-lg hover:shadow-xl transition-all group overflow-hidden"
                 >
                   <CardContent className="p-0">
                     <div className={`h-2 ${categoryColors[template.category]}`} />
@@ -369,11 +393,43 @@ export function SurveyPlatform() {
                       </div>
                       <h3 className="text-lg font-bold text-slate-900 mb-2">{template.title}</h3>
                       <p className="text-sm text-slate-500 mb-4">{template.description}</p>
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between mb-5">
                         <Badge className={categoryBadgeColors[template.category]}>
                           {template.category}
                         </Badge>
                         <span className="text-xs text-slate-400">{template.questions.length} أسئلة</span>
+                      </div>
+                      
+                      {/* الأزرار الثلاثة */}
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 gap-1.5"
+                            onClick={() => openQuestionsModal(template)}
+                          >
+                            <Eye className="w-4 h-4" />
+                            الأسئلة
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 gap-1.5"
+                            onClick={() => openEditTemplate(template)}
+                          >
+                            <Edit3 className="w-4 h-4" />
+                            تعديل
+                          </Button>
+                        </div>
+                        <Button
+                          size="sm"
+                          className="w-full gap-2 bg-gradient-to-l from-blue-600 to-violet-600"
+                          onClick={() => openCreateModal(template)}
+                        >
+                          <Plus className="w-4 h-4" />
+                          إنشاء
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -418,11 +474,17 @@ export function SurveyPlatform() {
                   <FileText className="w-10 h-10 text-slate-400" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-2">لا توجد نماذج</h3>
-                <p className="text-slate-500 mb-6">ابدأ بإضافة رابط Microsoft Forms</p>
-                <Button onClick={() => setShowAddModal(true)} size="lg" className="gap-2">
-                  <Plus className="w-5 h-5" />
-                  إضافة نموذج
-                </Button>
+                <p className="text-slate-500 mb-6">ابدأ بإنشاء نموذج من القوالب أو إضافة رابط موجود</p>
+                <div className="flex gap-3 justify-center">
+                  <Button onClick={() => setActiveView("templates")} size="lg" className="gap-2">
+                    <FileStack className="w-5 h-5" />
+                    القوالب الجاهزة
+                  </Button>
+                  <Button onClick={() => setShowAddModal(true)} size="lg" variant="outline" className="gap-2">
+                    <Plus className="w-5 h-5" />
+                    إضافة رابط
+                  </Button>
+                </div>
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -455,105 +517,155 @@ export function SurveyPlatform() {
         )}
       </main>
 
-      {/* Template Modal */}
-      <Dialog open={showTemplateModal} onOpenChange={setShowTemplateModal}>
-        <DialogContent className="max-w-2xl">
+      {/* Questions Modal - مودال الاطلاع على الأسئلة */}
+      <Dialog open={modalType === "questions"} onOpenChange={() => closeModal()}>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-2xl">إنشاء نموذج جديد</DialogTitle>
+            <DialogTitle className="text-xl flex items-center gap-3">
+              {selectedTemplate && (
+                <div className={`w-10 h-10 ${categoryColors[selectedTemplate.category]} rounded-xl flex items-center justify-center text-white`}>
+                  {templateIcons[selectedTemplate.icon]}
+                </div>
+              )}
+              أسئلة {selectedTemplate?.title}
+            </DialogTitle>
           </DialogHeader>
           
           {selectedTemplate && (
-            <div className="space-y-6 pt-4">
+            <div className="space-y-4 pt-2">
+              <p className="text-sm text-slate-500">{selectedTemplate.description}</p>
+              
+              <div className="bg-slate-50 rounded-xl p-4 space-y-3">
+                {selectedTemplate.questions.map((q, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <span className="w-7 h-7 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center shrink-0 text-sm font-bold">
+                      {i + 1}
+                    </span>
+                    <span className="text-slate-700 pt-0.5">{q}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => closeModal()}
+                  className="flex-1"
+                >
+                  إغلاق
+                </Button>
+                <Button
+                  onClick={() => {
+                    closeModal()
+                    openCreateModal(selectedTemplate)
+                  }}
+                  className="flex-1 gap-2 bg-gradient-to-l from-blue-600 to-violet-600"
+                >
+                  <Plus className="w-4 h-4" />
+                  إنشاء نموذج
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Modal - مودال الإنشاء */}
+      <Dialog open={modalType === "create"} onOpenChange={() => closeModal()}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-xl">
+              {createdForm ? "تم إنشاء النموذج بنجاح" : "إنشاء نموذج جديد"}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedTemplate && !createdForm && (
+            <div className="space-y-5 pt-2">
               {/* Template Info */}
-              <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl">
-                <div className={`w-12 h-12 ${categoryColors[selectedTemplate.category]} rounded-xl flex items-center justify-center text-white shadow-lg shrink-0`}>
+              <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                <div className={`w-10 h-10 ${categoryColors[selectedTemplate.category]} rounded-xl flex items-center justify-center text-white`}>
                   {templateIcons[selectedTemplate.icon]}
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-900">{selectedTemplate.title}</h4>
-                  <p className="text-sm text-slate-500">{selectedTemplate.description}</p>
+                  <p className="font-semibold text-slate-900">{selectedTemplate.title}</p>
+                  <p className="text-xs text-slate-500">{selectedTemplate.questions.length} أسئلة</p>
                 </div>
               </div>
 
               {/* Form Name Input */}
               <div className="space-y-2">
-                <Label className="text-base font-semibold">اسم النموذج</Label>
+                <Label className="text-sm font-semibold">اسم النموذج</Label>
                 <Input
                   value={newFormName}
                   onChange={(e) => setNewFormName(e.target.value)}
-                  placeholder="أدخل اسم النموذج الجديد"
-                  className="h-12"
+                  placeholder="أدخل اسم النموذج"
+                  className="h-11"
                 />
               </div>
 
-              {/* Questions Preview */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="text-base font-semibold">الأسئلة المقترحة</Label>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCopyQuestions}
-                    className="gap-2"
-                  >
-                    {copiedQuestions ? (
-                      <>
-                        <Check className="w-4 h-4 text-emerald-600" />
-                        تم النسخ
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-4 h-4" />
-                        نسخ الأسئلة
-                      </>
-                    )}
-                  </Button>
-                </div>
-                <div className="bg-slate-50 rounded-xl p-4 max-h-48 overflow-y-auto space-y-2">
-                  {selectedTemplate.questions.map((q, i) => (
-                    <div key={i} className="flex items-start gap-3 text-sm">
-                      <span className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center shrink-0 text-xs font-bold">
-                        {i + 1}
-                      </span>
-                      <span className="text-slate-700">{q}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Instructions */}
-              <div className="bg-blue-50 rounded-xl p-4">
-                <h5 className="font-bold text-blue-900 mb-2 flex items-center gap-2">
-                  <Wand2 className="w-4 h-4" />
-                  خطوات الإنشاء
-                </h5>
-                <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
-                  <li>انسخ الأسئلة أعلاه</li>
-                  <li>اضغط على {"\"إنشاء في Microsoft Forms\""}</li>
-                  <li>أنشئ نموذجاً جديداً باسم: <strong>{newFormName}</strong></li>
-                  <li>أضف الأسئلة المنسوخة</li>
-                  <li>عد إلى هنا وأضف رابط النموذج</li>
-                </ol>
+              {/* Form URL Input */}
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold">رابط النموذج من Microsoft Forms</Label>
+                <Input
+                  value={newFormUrl}
+                  onChange={(e) => setNewFormUrl(e.target.value)}
+                  placeholder="https://forms.microsoft.com/r/..."
+                  className="h-11"
+                  dir="ltr"
+                />
+                <p className="text-xs text-slate-500">
+                  أنشئ النموذج في Microsoft Forms ثم الصق رابط المشاركة هنا
+                </p>
               </div>
 
               {/* Actions */}
               <div className="flex gap-3 pt-2">
                 <Button
-                  onClick={handleGenerateForm}
-                  className="flex-1 h-12 bg-gradient-to-l from-blue-600 to-violet-600 gap-2"
+                  variant="outline"
+                  onClick={() => closeModal()}
+                  className="flex-1"
                 >
-                  <ExternalLink className="w-5 h-5" />
-                  إنشاء في Microsoft Forms
+                  إلغاء
                 </Button>
                 <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowTemplateModal(false)
-                    setShowAddModal(true)
-                  }}
-                  className="flex-1 h-12"
+                  onClick={handleCreateForm}
+                  disabled={!newFormName.trim() || !newFormUrl.trim()}
+                  className="flex-1 gap-2 bg-gradient-to-l from-blue-600 to-violet-600"
                 >
-                  لدي رابط جاهز
+                  <Plus className="w-4 h-4" />
+                  إنشاء
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Success State */}
+          {createdForm && (
+            <div className="space-y-5 pt-2">
+              <div className="text-center py-4">
+                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 mb-1">{createdForm.title}</h3>
+                <p className="text-sm text-slate-500">تمت إضافة النموذج إلى قائمة نماذجي</p>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => closeModal()}
+                  className="flex-1"
+                >
+                  إغلاق
+                </Button>
+                <Button
+                  onClick={goToFormsAndShowQR}
+                  className="flex-1 gap-2 bg-gradient-to-l from-blue-600 to-violet-600"
+                >
+                  <QrCode className="w-4 h-4" />
+                  عرض QR Code
                 </Button>
               </div>
             </div>

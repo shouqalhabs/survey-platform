@@ -26,6 +26,7 @@ export interface FormTemplate {
   category: FormCategory
   questions: string[]
   icon: string
+  templateUrl: string // رابط template الفورم في MS Forms للتعديل
 }
 
 export const FORM_TEMPLATES: FormTemplate[] = [
@@ -35,6 +36,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     description: "نموذج شامل لتقييم الدورات التدريبية ومستوى المدرب",
     category: "تقييم دورات",
     icon: "graduation",
+    templateUrl: "", // سيتم إضافته من المستخدم
     questions: [
       "ما مدى رضاك عن محتوى الدورة؟",
       "كيف تقيم أداء المدرب؟",
@@ -50,6 +52,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     description: "قياس مستوى رضا العملاء عن المنتجات والخدمات",
     category: "رضا العملاء",
     icon: "smile",
+    templateUrl: "",
     questions: [
       "كيف تقيم تجربتك الإجمالية معنا؟",
       "ما مدى رضاك عن جودة المنتج/الخدمة؟",
@@ -65,6 +68,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     description: "قياس رضا الموظفين وبيئة العمل",
     category: "استطلاع موظفين",
     icon: "users",
+    templateUrl: "",
     questions: [
       "ما مدى رضاك عن بيئة العمل؟",
       "هل تشعر بالتقدير من قبل الإدارة؟",
@@ -80,6 +84,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     description: "نموذج تقييم لورش العمل التفاعلية",
     category: "ورش عمل",
     icon: "wrench",
+    templateUrl: "",
     questions: [
       "كيف تقيم تنظيم ورشة العمل؟",
       "هل كان المحتوى عملياً ومفيداً؟",
@@ -95,6 +100,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     description: "جمع آراء المشاركين في الفعاليات والمؤتمرات",
     category: "فعاليات",
     icon: "calendar",
+    templateUrl: "",
     questions: [
       "كيف تقيم تنظيم الفعالية؟",
       "ما رأيك في جودة المتحدثين؟",
@@ -110,6 +116,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     description: "جمع آراء العملاء حول منتج جديد",
     category: "أخرى",
     icon: "package",
+    templateUrl: "",
     questions: [
       "كيف عرفت عن هذا المنتج؟",
       "ما انطباعك الأول عن المنتج؟",
