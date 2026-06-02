@@ -36,7 +36,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     description: "Comprehensive form to evaluate training courses and instructor performance",
     category: "Course Evaluation",
     icon: "graduation",
-    templateUrl: "",
+    templateUrl: "https://forms.microsoft.com/Pages/ShareFormPage.aspx?id=pk2wwoeEzEGIA5AyEEincnyqru1BWTdPuPxyMy6V6M1UMlVBTkxMRjhBMkVJUVZFV1pUUzNUNEgyOS4u&sharetoken=a5BX16Anm2dgK8wQWAnZ",
     questions: [
       "How satisfied are you with the course content?",
       "How would you rate the instructor's performance?",
