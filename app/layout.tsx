@@ -1,17 +1,16 @@
 import type { Metadata, Viewport } from "next"
-import { Noto_Sans_Arabic } from "next/font/google"
+import { Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
-const notoSansArabic = Noto_Sans_Arabic({
-  subsets: ["arabic"],
-  variable: "--font-arabic",
-  weight: ["400", "500", "600", "700"],
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
 })
 
 export const metadata: Metadata = {
-  title: "استبيان | منصة استطلاعات الرأي",
-  description: "منصة متكاملة لإدارة نماذج Microsoft Forms مع توليد QR Code",
+  title: "Survey Platform | Microsoft Forms Management",
+  description: "A complete platform for managing Microsoft Forms with QR Code generation",
   generator: "v0.app",
   icons: {
     icon: [
@@ -44,8 +43,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ar" dir="rtl" className="bg-background">
-      <body className={`${notoSansArabic.variable} font-sans antialiased bg-background`}>
+    <html lang="en" dir="ltr" className="bg-background">
+      <body className={`${inter.variable} font-sans antialiased bg-background`}>
         {children}
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>

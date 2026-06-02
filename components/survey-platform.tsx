@@ -49,21 +49,21 @@ import { FORM_TEMPLATES } from "@/lib/types"
 const initialForms: MSForm[] = []
 
 const categoryColors: Record<string, string> = {
-  "تقييم دورات": "bg-blue-500",
-  "رضا العملاء": "bg-emerald-500",
-  "استطلاع موظفين": "bg-violet-500",
-  "ورش عمل": "bg-amber-500",
-  "فعاليات": "bg-rose-500",
-  "أخرى": "bg-cyan-500",
+  "Course Evaluation": "bg-blue-500",
+  "Customer Satisfaction": "bg-emerald-500",
+  "Employee Survey": "bg-violet-500",
+  "Workshops": "bg-amber-500",
+  "Events": "bg-rose-500",
+  "Other": "bg-cyan-500",
 }
 
 const categoryBadgeColors: Record<string, string> = {
-  "تقييم دورات": "bg-blue-100 text-blue-700 hover:bg-blue-100",
-  "رضا العملاء": "bg-emerald-100 text-emerald-700 hover:bg-emerald-100",
-  "استطلاع موظفين": "bg-violet-100 text-violet-700 hover:bg-violet-100",
-  "ورش عمل": "bg-amber-100 text-amber-700 hover:bg-amber-100",
-  "فعاليات": "bg-rose-100 text-rose-700 hover:bg-rose-100",
-  "أخرى": "bg-cyan-100 text-cyan-700 hover:bg-cyan-100",
+  "Course Evaluation": "bg-blue-100 text-blue-700 hover:bg-blue-100",
+  "Customer Satisfaction": "bg-emerald-100 text-emerald-700 hover:bg-emerald-100",
+  "Employee Survey": "bg-violet-100 text-violet-700 hover:bg-violet-100",
+  "Workshops": "bg-amber-100 text-amber-700 hover:bg-amber-100",
+  "Events": "bg-rose-100 text-rose-700 hover:bg-rose-100",
+  "Other": "bg-cyan-100 text-cyan-700 hover:bg-cyan-100",
 }
 
 const templateIcons: Record<string, React.ReactNode> = {
@@ -88,11 +88,11 @@ export function SurveyPlatform() {
   const [selectedTemplate, setSelectedTemplate] = useState<FormTemplate | null>(null)
   const [modalType, setModalType] = useState<ModalType>("none")
   const [newFormName, setNewFormName] = useState("")
-  const [newFormUrl, setNewFormUrl] = useState("")
   const [createdForm, setCreatedForm] = useState<MSForm | null>(null)
 
   const filteredForms = forms.filter((form) => {
-    return form.title.includes(searchQuery) || form.description.includes(searchQuery)
+    return form.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+           form.description.toLowerCase().includes(searchQuery.toLowerCase())
   })
 
   const handleAddForm = (formData: Omit<MSForm, "id" | "createdAt" | "responsesCount">) => {
@@ -114,40 +114,40 @@ export function SurveyPlatform() {
     setShowQRModal(true)
   }
 
-  // فتح مودال الاطلاع على الأسئلة
+  // Open questions modal
   const openQuestionsModal = (template: FormTemplate) => {
     setSelectedTemplate(template)
     setModalType("questions")
   }
 
-  // فتح مودال الإنشاء
+  // Open create modal
   const openCreateModal = (template: FormTemplate) => {
     setSelectedTemplate(template)
     setNewFormName("")
-    setNewFormUrl("")
     setCreatedForm(null)
     setModalType("create")
   }
 
-  // فتح رابط تعديل القالب في MS Forms
+  // Open edit template in MS Forms
   const openEditTemplate = (template: FormTemplate) => {
     if (template.templateUrl) {
       window.open(template.templateUrl, "_blank")
     } else {
-      // إذا لم يكن هناك رابط، افتح MS Forms الرئيسي
       window.open("https://forms.microsoft.com/", "_blank")
     }
   }
 
-  // إنشاء النموذج وإضافته للقائمة
+  // Create form and add to list
   const handleCreateForm = () => {
-    if (!selectedTemplate || !newFormName.trim() || !newFormUrl.trim()) return
+    if (!selectedTemplate || !newFormName.trim()) return
 
+    // Generate a placeholder URL - user will update with real URL later
+    const formId = Date.now().toString()
     const newForm: MSForm = {
-      id: Date.now().toString(),
+      id: formId,
       title: newFormName,
       description: selectedTemplate.description,
-      formUrl: newFormUrl,
+      formUrl: `https://forms.microsoft.com/r/${formId}`,
       createdAt: new Date().toISOString(),
       category: selectedTemplate.category,
       responsesCount: 0,
@@ -157,7 +157,7 @@ export function SurveyPlatform() {
     setCreatedForm(newForm)
   }
 
-  // الانتقال لنماذجي وعرض QR
+  // Go to forms view and show QR
   const goToFormsAndShowQR = () => {
     if (createdForm) {
       setModalType("none")
@@ -176,16 +176,16 @@ export function SurveyPlatform() {
   }
 
   const sidebarItems = [
-    { id: "dashboard" as const, label: "لوحة التحكم", icon: LayoutDashboard },
-    { id: "templates" as const, label: "القوالب الجاهزة", icon: FileStack },
-    { id: "forms" as const, label: "نماذجي", icon: ClipboardList },
-    { id: "analytics" as const, label: "التحليلات", icon: BarChart3, disabled: true },
+    { id: "dashboard" as const, label: "Dashboard", icon: LayoutDashboard },
+    { id: "templates" as const, label: "Templates", icon: FileStack },
+    { id: "forms" as const, label: "My Forms", icon: ClipboardList },
+    { id: "analytics" as const, label: "Analytics", icon: BarChart3, disabled: true },
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-bl from-slate-50 via-white to-blue-50/30 flex">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 flex">
       {/* Sidebar */}
-      <aside className="w-72 bg-white border-l border-slate-200 min-h-screen sticky top-0 flex flex-col shadow-xl">
+      <aside className="w-72 bg-white border-r border-slate-200 min-h-screen sticky top-0 flex flex-col shadow-xl">
         {/* Logo */}
         <div className="p-6 border-b border-slate-100">
           <div className="flex items-center gap-3">
@@ -193,7 +193,7 @@ export function SurveyPlatform() {
               <ClipboardList className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900">منصة الاستبيانات</h1>
+              <h1 className="text-xl font-bold text-slate-900">Survey Platform</h1>
               <p className="text-xs text-slate-500">Microsoft Forms</p>
             </div>
           </div>
@@ -206,9 +206,9 @@ export function SurveyPlatform() {
               key={item.id}
               onClick={() => !item.disabled && setActiveView(item.id)}
               disabled={item.disabled}
-              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-right transition-all ${
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left transition-all ${
                 activeView === item.id
-                  ? "bg-gradient-to-l from-blue-600 to-violet-600 text-white shadow-lg shadow-blue-500/30"
+                  ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-lg shadow-blue-500/30"
                   : item.disabled
                   ? "text-slate-400 cursor-not-allowed"
                   : "text-slate-600 hover:bg-slate-100"
@@ -217,7 +217,7 @@ export function SurveyPlatform() {
               <item.icon className="w-5 h-5" />
               <span className="font-medium">{item.label}</span>
               {item.disabled && (
-                <Badge variant="secondary" className="mr-auto text-[10px] bg-amber-100 text-amber-700">قريباً</Badge>
+                <Badge variant="secondary" className="ml-auto text-[10px] bg-amber-100 text-amber-700">Soon</Badge>
               )}
             </button>
           ))}
@@ -231,9 +231,9 @@ export function SurveyPlatform() {
                 <Sparkles className="w-5 h-5 text-blue-600" />
               </div>
               <h4 className="font-bold text-slate-900 mb-1">Power BI</h4>
-              <p className="text-xs text-slate-600 mb-3">ربط التحليلات قريباً</p>
+              <p className="text-xs text-slate-600 mb-3">Analytics coming soon</p>
               <Button variant="secondary" size="sm" className="w-full" disabled>
-                قريباً
+                Coming Soon
               </Button>
             </CardContent>
           </Card>
@@ -248,15 +248,15 @@ export function SurveyPlatform() {
             {/* Header */}
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-3xl font-bold text-slate-900">مرحباً بك</h2>
-                <p className="text-slate-500 mt-1">إدارة استبياناتك ونماذج Microsoft Forms</p>
+                <h2 className="text-3xl font-bold text-slate-900">Welcome</h2>
+                <p className="text-slate-500 mt-1">Manage your surveys and Microsoft Forms</p>
               </div>
               <Button 
                 onClick={() => setShowAddModal(true)}
-                className="bg-gradient-to-l from-blue-600 to-violet-600 hover:opacity-90 gap-2 shadow-lg shadow-blue-500/30 h-12 px-6"
+                className="bg-gradient-to-r from-blue-600 to-violet-600 hover:opacity-90 gap-2 shadow-lg shadow-blue-500/30 h-12 px-6"
               >
                 <Plus className="w-5 h-5" />
-                إضافة نموذج
+                Add Form
               </Button>
             </div>
 
@@ -268,7 +268,7 @@ export function SurveyPlatform() {
                     <div className="w-2 bg-gradient-to-b from-blue-500 to-blue-600" />
                     <div className="flex items-center justify-between flex-1 p-6">
                       <div>
-                        <p className="text-sm text-slate-500 font-medium">إجمالي النماذج</p>
+                        <p className="text-sm text-slate-500 font-medium">Total Forms</p>
                         <p className="text-4xl font-bold text-slate-900 mt-1">{forms.length}</p>
                       </div>
                       <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center">
@@ -285,7 +285,7 @@ export function SurveyPlatform() {
                     <div className="w-2 bg-gradient-to-b from-emerald-500 to-emerald-600" />
                     <div className="flex items-center justify-between flex-1 p-6">
                       <div>
-                        <p className="text-sm text-slate-500 font-medium">إجمالي الردود</p>
+                        <p className="text-sm text-slate-500 font-medium">Total Responses</p>
                         <p className="text-4xl font-bold text-slate-900 mt-1">
                           {forms.reduce((sum, f) => sum + f.responsesCount, 0)}
                         </p>
@@ -304,7 +304,7 @@ export function SurveyPlatform() {
                     <div className="w-2 bg-gradient-to-b from-violet-500 to-violet-600" />
                     <div className="flex items-center justify-between flex-1 p-6">
                       <div>
-                        <p className="text-sm text-slate-500 font-medium">القوالب المتاحة</p>
+                        <p className="text-sm text-slate-500 font-medium">Available Templates</p>
                         <p className="text-4xl font-bold text-slate-900 mt-1">{FORM_TEMPLATES.length}</p>
                       </div>
                       <div className="w-16 h-16 bg-violet-100 rounded-2xl flex items-center justify-center">
@@ -326,8 +326,8 @@ export function SurveyPlatform() {
                   <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-4">
                     <FileStack className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-2">إنشاء من قالب</h3>
-                  <p className="text-blue-100">اختر من القوالب الجاهزة وأنشئ نموذجك بسرعة</p>
+                  <h3 className="text-2xl font-bold text-white mb-2">Create from Template</h3>
+                  <p className="text-blue-100">Choose from ready templates and create your form quickly</p>
                 </CardContent>
               </Card>
 
@@ -339,8 +339,8 @@ export function SurveyPlatform() {
                   <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-4">
                     <Plus className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-2">إضافة رابط موجود</h3>
-                  <p className="text-emerald-100">أضف رابط Microsoft Forms موجود لتوليد QR Code</p>
+                  <h3 className="text-2xl font-bold text-white mb-2">Add Existing Link</h3>
+                  <p className="text-emerald-100">Add an existing Microsoft Forms link to generate QR Code</p>
                 </CardContent>
               </Card>
             </div>
@@ -349,9 +349,9 @@ export function SurveyPlatform() {
             {forms.length > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-slate-900">آخر النماذج</h3>
+                  <h3 className="text-xl font-bold text-slate-900">Recent Forms</h3>
                   <Button variant="ghost" onClick={() => setActiveView("forms")} className="text-blue-600 hover:text-blue-700">
-                    عرض الكل
+                    View All
                   </Button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -375,8 +375,8 @@ export function SurveyPlatform() {
         {activeView === "templates" && (
           <div className="space-y-8">
             <div>
-              <h2 className="text-3xl font-bold text-slate-900">القوالب الجاهزة</h2>
-              <p className="text-slate-500 mt-1">اختر قالباً لعرض أسئلته أو إنشاء نموذج جديد</p>
+              <h2 className="text-3xl font-bold text-slate-900">Templates</h2>
+              <p className="text-slate-500 mt-1">Choose a template to view questions or create a new form</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -397,38 +397,27 @@ export function SurveyPlatform() {
                         <Badge className={categoryBadgeColors[template.category]}>
                           {template.category}
                         </Badge>
-                        <span className="text-xs text-slate-400">{template.questions.length} أسئلة</span>
+                        <span className="text-xs text-slate-400">{template.questions.length} questions</span>
                       </div>
                       
-                      {/* الأزرار الثلاثة */}
-                      <div className="space-y-2">
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="flex-1 gap-1.5"
-                            onClick={() => openQuestionsModal(template)}
-                          >
-                            <Eye className="w-4 h-4" />
-                            الأسئلة
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="flex-1 gap-1.5"
-                            onClick={() => openEditTemplate(template)}
-                          >
-                            <Edit3 className="w-4 h-4" />
-                            تعديل
-                          </Button>
-                        </div>
+                      {/* Two buttons: View Questions and Create */}
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 gap-1.5"
+                          onClick={() => openQuestionsModal(template)}
+                        >
+                          <Eye className="w-4 h-4" />
+                          View Questions
+                        </Button>
                         <Button
                           size="sm"
-                          className="w-full gap-2 bg-gradient-to-l from-blue-600 to-violet-600"
+                          className="flex-1 gap-1.5 bg-gradient-to-r from-blue-600 to-violet-600"
                           onClick={() => openCreateModal(template)}
                         >
                           <Plus className="w-4 h-4" />
-                          إنشاء
+                          Create
                         </Button>
                       </div>
                     </div>
@@ -444,26 +433,26 @@ export function SurveyPlatform() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-3xl font-bold text-slate-900">نماذجي</h2>
-                <p className="text-slate-500 mt-1">جميع نماذج Microsoft Forms المضافة</p>
+                <h2 className="text-3xl font-bold text-slate-900">My Forms</h2>
+                <p className="text-slate-500 mt-1">All your added Microsoft Forms</p>
               </div>
               <Button 
                 onClick={() => setShowAddModal(true)}
-                className="bg-gradient-to-l from-blue-600 to-violet-600 hover:opacity-90 gap-2 shadow-lg shadow-blue-500/30"
+                className="bg-gradient-to-r from-blue-600 to-violet-600 hover:opacity-90 gap-2 shadow-lg shadow-blue-500/30"
               >
                 <Plus className="w-4 h-4" />
-                إضافة نموذج
+                Add Form
               </Button>
             </div>
 
             {/* Search */}
             <div className="relative max-w-md">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <Input
-                placeholder="البحث في النماذج..."
+                placeholder="Search forms..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pr-11 h-12 bg-white shadow-sm border-slate-200"
+                className="pl-11 h-12 bg-white shadow-sm border-slate-200"
               />
             </div>
 
@@ -473,16 +462,16 @@ export function SurveyPlatform() {
                 <div className="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
                   <FileText className="w-10 h-10 text-slate-400" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">لا توجد نماذج</h3>
-                <p className="text-slate-500 mb-6">ابدأ بإنشاء نموذج من القوالب أو إضافة رابط موجود</p>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">No Forms Yet</h3>
+                <p className="text-slate-500 mb-6">Start by creating a form from templates or adding an existing link</p>
                 <div className="flex gap-3 justify-center">
                   <Button onClick={() => setActiveView("templates")} size="lg" className="gap-2">
                     <FileStack className="w-5 h-5" />
-                    القوالب الجاهزة
+                    Templates
                   </Button>
                   <Button onClick={() => setShowAddModal(true)} size="lg" variant="outline" className="gap-2">
                     <Plus className="w-5 h-5" />
-                    إضافة رابط
+                    Add Link
                   </Button>
                 </div>
               </Card>
@@ -510,14 +499,14 @@ export function SurveyPlatform() {
               <div className="w-20 h-20 bg-amber-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
                 <BarChart3 className="w-10 h-10 text-amber-600" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">التحليلات قريباً</h3>
-              <p className="text-slate-500">سيتم ربط Power BI لعرض تحليلات متقدمة</p>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Analytics Coming Soon</h3>
+              <p className="text-slate-500">Power BI integration for advanced analytics</p>
             </Card>
           </div>
         )}
       </main>
 
-      {/* Questions Modal - مودال الاطلاع على الأسئلة */}
+      {/* Questions Modal - with Edit button inside */}
       <Dialog open={modalType === "questions"} onOpenChange={() => closeModal()}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
@@ -527,7 +516,7 @@ export function SurveyPlatform() {
                   {templateIcons[selectedTemplate.icon]}
                 </div>
               )}
-              أسئلة {selectedTemplate?.title}
+              {selectedTemplate?.title} Questions
             </DialogTitle>
           </DialogHeader>
           
@@ -549,20 +538,21 @@ export function SurveyPlatform() {
               <div className="flex gap-3 pt-2">
                 <Button
                   variant="outline"
-                  onClick={() => closeModal()}
-                  className="flex-1"
+                  onClick={() => openEditTemplate(selectedTemplate)}
+                  className="flex-1 gap-2"
                 >
-                  إغلاق
+                  <Edit3 className="w-4 h-4" />
+                  Edit Template
                 </Button>
                 <Button
                   onClick={() => {
                     closeModal()
                     openCreateModal(selectedTemplate)
                   }}
-                  className="flex-1 gap-2 bg-gradient-to-l from-blue-600 to-violet-600"
+                  className="flex-1 gap-2 bg-gradient-to-r from-blue-600 to-violet-600"
                 >
                   <Plus className="w-4 h-4" />
-                  إنشاء نموذج
+                  Create Form
                 </Button>
               </div>
             </div>
@@ -570,12 +560,12 @@ export function SurveyPlatform() {
         </DialogContent>
       </Dialog>
 
-      {/* Create Modal - مودال الإنشاء */}
+      {/* Create Modal - only asks for name */}
       <Dialog open={modalType === "create"} onOpenChange={() => closeModal()}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-xl">
-              {createdForm ? "تم إنشاء النموذج بنجاح" : "إنشاء نموذج جديد"}
+              {createdForm ? "Form Created Successfully" : "Create New Form"}
             </DialogTitle>
           </DialogHeader>
           
@@ -588,34 +578,19 @@ export function SurveyPlatform() {
                 </div>
                 <div>
                   <p className="font-semibold text-slate-900">{selectedTemplate.title}</p>
-                  <p className="text-xs text-slate-500">{selectedTemplate.questions.length} أسئلة</p>
+                  <p className="text-xs text-slate-500">{selectedTemplate.questions.length} questions</p>
                 </div>
               </div>
 
-              {/* Form Name Input */}
+              {/* Form Name Input - only field */}
               <div className="space-y-2">
-                <Label className="text-sm font-semibold">اسم النموذج</Label>
+                <Label className="text-sm font-semibold">Form Name</Label>
                 <Input
                   value={newFormName}
                   onChange={(e) => setNewFormName(e.target.value)}
-                  placeholder="أدخل اسم النموذج"
+                  placeholder="Enter form name"
                   className="h-11"
                 />
-              </div>
-
-              {/* Form URL Input */}
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold">رابط النموذج من Microsoft Forms</Label>
-                <Input
-                  value={newFormUrl}
-                  onChange={(e) => setNewFormUrl(e.target.value)}
-                  placeholder="https://forms.microsoft.com/r/..."
-                  className="h-11"
-                  dir="ltr"
-                />
-                <p className="text-xs text-slate-500">
-                  أنشئ النموذج في Microsoft Forms ثم الصق رابط المشاركة هنا
-                </p>
               </div>
 
               {/* Actions */}
@@ -625,15 +600,15 @@ export function SurveyPlatform() {
                   onClick={() => closeModal()}
                   className="flex-1"
                 >
-                  إلغاء
+                  Cancel
                 </Button>
                 <Button
                   onClick={handleCreateForm}
-                  disabled={!newFormName.trim() || !newFormUrl.trim()}
-                  className="flex-1 gap-2 bg-gradient-to-l from-blue-600 to-violet-600"
+                  disabled={!newFormName.trim()}
+                  className="flex-1 gap-2 bg-gradient-to-r from-blue-600 to-violet-600"
                 >
                   <Plus className="w-4 h-4" />
-                  إنشاء
+                  Create
                 </Button>
               </div>
             </div>
@@ -649,7 +624,7 @@ export function SurveyPlatform() {
                   </svg>
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 mb-1">{createdForm.title}</h3>
-                <p className="text-sm text-slate-500">تمت إضافة النموذج إلى قائمة نماذجي</p>
+                <p className="text-sm text-slate-500">Form added to My Forms</p>
               </div>
 
               <div className="flex gap-3">
@@ -658,14 +633,14 @@ export function SurveyPlatform() {
                   onClick={() => closeModal()}
                   className="flex-1"
                 >
-                  إغلاق
+                  Close
                 </Button>
                 <Button
                   onClick={goToFormsAndShowQR}
-                  className="flex-1 gap-2 bg-gradient-to-l from-blue-600 to-violet-600"
+                  className="flex-1 gap-2 bg-gradient-to-r from-blue-600 to-violet-600"
                 >
                   <QrCode className="w-4 h-4" />
-                  عرض QR Code
+                  View QR Code
                 </Button>
               </div>
             </div>
@@ -704,12 +679,12 @@ function FormCard({
   categoryBadgeColors: Record<string, string>
 }) {
   const categoryIcons: Record<string, React.ReactNode> = {
-    "تقييم دورات": <GraduationCap className="w-5 h-5 text-white" />,
-    "رضا العملاء": <Smile className="w-5 h-5 text-white" />,
-    "استطلاع موظفين": <Users className="w-5 h-5 text-white" />,
-    "ورش عمل": <Wrench className="w-5 h-5 text-white" />,
-    "فعاليات": <Calendar className="w-5 h-5 text-white" />,
-    "أخرى": <FolderOpen className="w-5 h-5 text-white" />,
+    "Course Evaluation": <GraduationCap className="w-5 h-5 text-white" />,
+    "Customer Satisfaction": <Smile className="w-5 h-5 text-white" />,
+    "Employee Survey": <Users className="w-5 h-5 text-white" />,
+    "Workshops": <Wrench className="w-5 h-5 text-white" />,
+    "Events": <Calendar className="w-5 h-5 text-white" />,
+    "Other": <FolderOpen className="w-5 h-5 text-white" />,
   }
 
   return (
@@ -724,25 +699,25 @@ function FormCard({
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity -mt-1 -ml-1">
+                <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity -mt-1 -mr-1">
                   <MoreVertical className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => window.open(form.formUrl, "_blank")}>
-                  <ExternalLink className="w-4 h-4 ml-2" />
-                  فتح النموذج
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Open Form
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={onQRClick}>
-                  <QrCode className="w-4 h-4 ml-2" />
-                  عرض QR Code
+                  <QrCode className="w-4 h-4 mr-2" />
+                  View QR Code
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={onDelete}
                   className="text-red-600 focus:text-red-600"
                 >
-                  <Trash2 className="w-4 h-4 ml-2" />
-                  حذف
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -750,7 +725,7 @@ function FormCard({
 
           <h3 className="font-bold text-lg mb-2 line-clamp-1 text-slate-900">{form.title}</h3>
           <p className="text-sm text-slate-500 mb-4 line-clamp-2 min-h-[40px]">
-            {form.description || "لا يوجد وصف"}
+            {form.description || "No description"}
           </p>
 
           <div className="flex items-center justify-between mb-5">
@@ -758,14 +733,14 @@ function FormCard({
               {form.category}
             </Badge>
             <span className="text-sm font-medium text-slate-500">
-              {form.responsesCount} رد
+              {form.responsesCount} responses
             </span>
           </div>
 
           <div className="flex gap-2">
             <Button 
               onClick={onQRClick} 
-              className="flex-1 gap-2 bg-gradient-to-l from-blue-600 to-violet-600"
+              className="flex-1 gap-2 bg-gradient-to-r from-blue-600 to-violet-600"
             >
               <QrCode className="w-4 h-4" />
               QR Code
@@ -776,7 +751,7 @@ function FormCard({
               className="flex-1 gap-2"
             >
               <ExternalLink className="w-4 h-4" />
-              فتح
+              Open
             </Button>
           </div>
         </div>

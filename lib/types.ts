@@ -8,15 +8,15 @@ export interface MSForm {
   responsesCount: number
 }
 
-export type FormCategory = "تقييم دورات" | "رضا العملاء" | "استطلاع موظفين" | "ورش عمل" | "فعاليات" | "أخرى"
+export type FormCategory = "Course Evaluation" | "Customer Satisfaction" | "Employee Survey" | "Workshops" | "Events" | "Other"
 
 export const FORM_CATEGORIES: FormCategory[] = [
-  "تقييم دورات",
-  "رضا العملاء", 
-  "استطلاع موظفين",
-  "ورش عمل",
-  "فعاليات",
-  "أخرى"
+  "Course Evaluation",
+  "Customer Satisfaction", 
+  "Employee Survey",
+  "Workshops",
+  "Events",
+  "Other"
 ]
 
 export interface FormTemplate {
@@ -26,104 +26,104 @@ export interface FormTemplate {
   category: FormCategory
   questions: string[]
   icon: string
-  templateUrl: string // رابط template الفورم في MS Forms للتعديل
+  templateUrl: string
 }
 
 export const FORM_TEMPLATES: FormTemplate[] = [
   {
     id: "course-evaluation",
-    title: "تقييم دورة تدريبية",
-    description: "نموذج شامل لتقييم الدورات التدريبية ومستوى المدرب",
-    category: "تقييم دورات",
+    title: "Course Evaluation",
+    description: "Comprehensive form to evaluate training courses and instructor performance",
+    category: "Course Evaluation",
     icon: "graduation",
-    templateUrl: "", // سيتم إضافته من المستخدم
+    templateUrl: "",
     questions: [
-      "ما مدى رضاك عن محتوى الدورة؟",
-      "كيف تقيم أداء المدرب؟",
-      "هل كانت المادة التدريبية واضحة ومفهومة؟",
-      "ما مدى تحقيق الدورة لتوقعاتك؟",
-      "هل توصي بهذه الدورة للآخرين؟",
-      "ما هي اقتراحاتك لتحسين الدورة؟"
+      "How satisfied are you with the course content?",
+      "How would you rate the instructor's performance?",
+      "Was the training material clear and understandable?",
+      "To what extent did the course meet your expectations?",
+      "Would you recommend this course to others?",
+      "What are your suggestions for improving the course?"
     ]
   },
   {
     id: "customer-satisfaction",
-    title: "رضا العملاء",
-    description: "قياس مستوى رضا العملاء عن المنتجات والخدمات",
-    category: "رضا العملاء",
+    title: "Customer Satisfaction",
+    description: "Measure customer satisfaction with products and services",
+    category: "Customer Satisfaction",
     icon: "smile",
     templateUrl: "",
     questions: [
-      "كيف تقيم تجربتك الإجمالية معنا؟",
-      "ما مدى رضاك عن جودة المنتج/الخدمة؟",
-      "كيف تقيم سرعة الاستجابة لطلباتك؟",
-      "هل تم حل مشكلتك بشكل مرضي؟",
-      "ما احتمالية أن توصي بنا للآخرين؟",
-      "ما الذي يمكننا تحسينه؟"
+      "How would you rate your overall experience with us?",
+      "How satisfied are you with the product/service quality?",
+      "How would you rate our response time to your requests?",
+      "Was your issue resolved satisfactorily?",
+      "How likely are you to recommend us to others?",
+      "What can we improve?"
     ]
   },
   {
     id: "employee-survey",
-    title: "استطلاع رأي الموظفين",
-    description: "قياس رضا الموظفين وبيئة العمل",
-    category: "استطلاع موظفين",
+    title: "Employee Survey",
+    description: "Measure employee satisfaction and work environment",
+    category: "Employee Survey",
     icon: "users",
     templateUrl: "",
     questions: [
-      "ما مدى رضاك عن بيئة العمل؟",
-      "هل تشعر بالتقدير من قبل الإدارة؟",
-      "كيف تقيم التواصل داخل الفريق؟",
-      "هل لديك الأدوات اللازمة لأداء عملك؟",
-      "ما مدى وضوح أهداف العمل لديك؟",
-      "ما اقتراحاتك لتحسين بيئة العمل؟"
+      "How satisfied are you with the work environment?",
+      "Do you feel appreciated by management?",
+      "How would you rate team communication?",
+      "Do you have the tools needed to do your job?",
+      "How clear are your work objectives?",
+      "What are your suggestions for improving the work environment?"
     ]
   },
   {
     id: "workshop-feedback",
-    title: "تقييم ورشة عمل",
-    description: "نموذج تقييم لورش العمل التفاعلية",
-    category: "ورش عمل",
+    title: "Workshop Feedback",
+    description: "Evaluation form for interactive workshops",
+    category: "Workshops",
     icon: "wrench",
     templateUrl: "",
     questions: [
-      "كيف تقيم تنظيم ورشة العمل؟",
-      "هل كان المحتوى عملياً ومفيداً؟",
-      "ما مدى تفاعل الميسر مع المشاركين؟",
-      "هل كان الوقت المخصص كافياً؟",
-      "ما أكثر شيء استفدت منه؟",
-      "ما المواضيع التي تود تناولها مستقبلاً؟"
+      "How would you rate the workshop organization?",
+      "Was the content practical and useful?",
+      "How engaging was the facilitator with participants?",
+      "Was the allocated time sufficient?",
+      "What did you benefit from the most?",
+      "What topics would you like to see in the future?"
     ]
   },
   {
     id: "event-feedback",
-    title: "تقييم فعالية",
-    description: "جمع آراء المشاركين في الفعاليات والمؤتمرات",
-    category: "فعاليات",
+    title: "Event Feedback",
+    description: "Collect participant feedback on events and conferences",
+    category: "Events",
     icon: "calendar",
     templateUrl: "",
     questions: [
-      "كيف تقيم تنظيم الفعالية؟",
-      "ما رأيك في جودة المتحدثين؟",
-      "هل كان المكان مناسباً؟",
-      "كيف تقيم الضيافة والخدمات؟",
-      "هل حققت الفعالية توقعاتك؟",
-      "هل ستحضر فعالياتنا القادمة؟"
+      "How would you rate the event organization?",
+      "What did you think of the speakers' quality?",
+      "Was the venue appropriate?",
+      "How would you rate the hospitality and services?",
+      "Did the event meet your expectations?",
+      "Will you attend our future events?"
     ]
   },
   {
     id: "product-feedback",
-    title: "تقييم منتج جديد",
-    description: "جمع آراء العملاء حول منتج جديد",
-    category: "أخرى",
+    title: "New Product Feedback",
+    description: "Collect customer feedback on new products",
+    category: "Other",
     icon: "package",
     templateUrl: "",
     questions: [
-      "كيف عرفت عن هذا المنتج؟",
-      "ما انطباعك الأول عن المنتج؟",
-      "هل يلبي المنتج احتياجاتك؟",
-      "كيف تقيم سعر المنتج مقارنة بجودته؟",
-      "ما الميزات التي تود إضافتها؟",
-      "هل ستشتري هذا المنتج مرة أخرى؟"
+      "How did you hear about this product?",
+      "What is your first impression of the product?",
+      "Does the product meet your needs?",
+      "How would you rate the product's price compared to its quality?",
+      "What features would you like to add?",
+      "Would you buy this product again?"
     ]
   }
 ]

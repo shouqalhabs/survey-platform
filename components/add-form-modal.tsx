@@ -31,7 +31,7 @@ export function AddFormModal({ open, onClose, onAdd }: AddFormModalProps) {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [formUrl, setFormUrl] = useState("")
-  const [category, setCategory] = useState<FormCategory>("أخرى")
+  const [category, setCategory] = useState<FormCategory>("Other")
   const [error, setError] = useState("")
 
   const validateMicrosoftFormsUrl = (url: string): boolean => {
@@ -46,17 +46,17 @@ export function AddFormModal({ open, onClose, onAdd }: AddFormModalProps) {
     setError("")
     
     if (!title.trim()) {
-      setError("الرجاء إدخال عنوان النموذج")
+      setError("Please enter a form title")
       return
     }
     
     if (!formUrl.trim()) {
-      setError("الرجاء إدخال رابط Microsoft Forms")
+      setError("Please enter a Microsoft Forms link")
       return
     }
     
     if (!validateMicrosoftFormsUrl(formUrl)) {
-      setError("الرجاء إدخال رابط Microsoft Forms صحيح")
+      setError("Please enter a valid Microsoft Forms link")
       return
     }
 
@@ -71,7 +71,7 @@ export function AddFormModal({ open, onClose, onAdd }: AddFormModalProps) {
     setTitle("")
     setDescription("")
     setFormUrl("")
-    setCategory("أخرى")
+    setCategory("Other")
     onClose()
   }
 
@@ -83,50 +83,49 @@ export function AddFormModal({ open, onClose, onAdd }: AddFormModalProps) {
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
               <Plus className="w-5 h-5 text-primary" />
             </div>
-            إضافة نموذج Microsoft Forms
+            Add Microsoft Form
           </DialogTitle>
         </DialogHeader>
         
         <div className="space-y-5 py-4">
           <div className="space-y-2">
-            <Label htmlFor="title">عنوان النموذج *</Label>
+            <Label htmlFor="title">Form Title *</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="مثال: تقييم الدورة التدريبية"
+              placeholder="e.g., Training Course Evaluation"
               className="h-11"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="formUrl">رابط Microsoft Forms *</Label>
+            <Label htmlFor="formUrl">Microsoft Forms Link *</Label>
             <Input
               id="formUrl"
               value={formUrl}
               onChange={(e) => setFormUrl(e.target.value)}
               placeholder="https://forms.microsoft.com/..."
-              dir="ltr"
-              className="h-11 text-left"
+              className="h-11"
             />
             <p className="text-xs text-muted-foreground">
-              انسخ الرابط من Microsoft Forms عند مشاركة النموذج
+              Copy the link from Microsoft Forms when sharing the form
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">وصف النموذج</Label>
+            <Label htmlFor="description">Form Description</Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="وصف مختصر للنموذج..."
+              placeholder="Brief description of the form..."
               rows={3}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="category">التصنيف</Label>
+            <Label htmlFor="category">Category</Label>
             <Select value={category} onValueChange={(v) => setCategory(v as FormCategory)}>
               <SelectTrigger className="h-11">
                 <SelectValue />
@@ -150,11 +149,11 @@ export function AddFormModal({ open, onClose, onAdd }: AddFormModalProps) {
 
           <div className="flex gap-3 pt-2">
             <Button onClick={handleSubmit} className="flex-1 h-11">
-              <Plus className="w-4 h-4 ml-2" />
-              إضافة النموذج
+              <Plus className="w-4 h-4 mr-2" />
+              Add Form
             </Button>
             <Button variant="outline" onClick={onClose} className="flex-1 h-11">
-              إلغاء
+              Cancel
             </Button>
           </div>
         </div>

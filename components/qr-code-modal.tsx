@@ -78,11 +78,11 @@ export function QRCodeModal({ open, onClose, form }: QRCodeModalProps) {
           </div>
           
           <p className="text-sm text-muted-foreground text-center max-w-xs">
-            امسح رمز QR للوصول مباشرة إلى نموذج Microsoft Forms
+            Scan the QR code to access the Microsoft Form directly
           </p>
 
           <div className="flex items-center gap-2 w-full p-3 bg-secondary rounded-xl text-sm border">
-            <span className="truncate flex-1 text-muted-foreground" dir="ltr">
+            <span className="truncate flex-1 text-muted-foreground">
               {form.formUrl}
             </span>
             <Button
@@ -103,18 +103,18 @@ export function QRCodeModal({ open, onClose, form }: QRCodeModalProps) {
             <div className="flex gap-3">
               <Button onClick={downloadQR} className="flex-1 gap-2">
                 <Download className="w-4 h-4" />
-                تحميل QR
+                Download QR
               </Button>
               <Button onClick={copyLink} variant="outline" className="flex-1 gap-2">
                 {copied ? (
                   <>
                     <Check className="w-4 h-4 text-accent" />
-                    تم النسخ!
+                    Copied!
                   </>
                 ) : (
                   <>
                     <Copy className="w-4 h-4" />
-                    نسخ الرابط
+                    Copy Link
                   </>
                 )}
               </Button>
@@ -125,7 +125,7 @@ export function QRCodeModal({ open, onClose, form }: QRCodeModalProps) {
               onClick={() => window.open(form.formUrl, "_blank")}
             >
               <ExternalLink className="w-4 h-4" />
-              فتح النموذج في Microsoft Forms
+              Open in Microsoft Forms
             </Button>
           </div>
         </div>
