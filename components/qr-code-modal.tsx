@@ -8,26 +8,24 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Download, Copy, Check } from "lucide-react"
+import { Download, Copy, Check, ExternalLink } from "lucide-react"
 import { useState, useRef } from "react"
+import type { MSForm } from "@/lib/types"
 
 interface QRCodeModalProps {
   open: boolean
   onClose: () => void
-  formId: string
-  formTitle: string
+  form: MSForm | null
 }
 
-export function QRCodeModal({ open, onClose, formId, formTitle }: QRCodeModalProps) {
+export function QRCodeModal({ open, onClose, form }: QRCodeModalProps) {
   const [copied, setCopied] = useState(false)
   const qrRef = useRef<HTMLDivElement>(null)
   
-  const formUrl = typeof window !== "undefined" 
-    ? `${window.location.origin}/form/${formId}`
-    : `/form/${formId}`
+  if (!form) return null
 
   const copyLink = async () => {
-    await navigator.clipboard.writeText(formUrl)
+    await navigator.clipboard.writeText(form.formUrl)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -45,13 +43,12 @@ export function QRCodeModal({ open, onClose, formId, formTitle }: QRCodeModalPro
     img.onload = () => {
       canvas.width = 400
       canvas.height = 400
-      ctx?.fillRect(0, 0, canvas.width, canvas.height)
       ctx!.fillStyle = "#ffffff"
       ctx?.fillRect(0, 0, canvas.width, canvas.height)
       ctx?.drawImage(img, 0, 0, 400, 400)
       
       const link = document.createElement("a")
-      link.download = `qr-${formTitle}.png`
+      link.download = `qr-${form.title}.png`
       link.href = canvas.toDataURL("image/png")
       link.click()
     }
@@ -63,30 +60,30 @@ export function QRCodeModal({ open, onClose, formId, formTitle }: QRCodeModalPro
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-center">رمز QR للاستبيان</DialogTitle>
+          <DialogTitle className="text-center text-xl font-bold">{form.title}</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col items-center gap-6 py-4">
           <div 
             ref={qrRef}
-            className="bg-white p-4 rounded-xl shadow-lg"
+            className="bg-white p-6 rounded-2xl shadow-xl border-4 border-primary/20"
           >
             <QRCodeSVG
-              value={formUrl}
-              size={200}
+              value={form.formUrl}
+              size={220}
               level="H"
               includeMargin
               bgColor="#ffffff"
-              fgColor="#1a1625"
+              fgColor="#4361ee"
             />
           </div>
           
           <p className="text-sm text-muted-foreground text-center max-w-xs">
-            امسح رمز QR هذا للوصول مباشرة إلى الاستبيان
+            امسح رمز QR للوصول مباشرة إلى نموذج Microsoft Forms
           </p>
 
-          <div className="flex items-center gap-2 w-full p-3 bg-muted rounded-lg text-sm">
+          <div className="flex items-center gap-2 w-full p-3 bg-secondary rounded-xl text-sm border">
             <span className="truncate flex-1 text-muted-foreground" dir="ltr">
-              {formUrl}
+              {form.formUrl}
             </span>
             <Button
               variant="ghost"
@@ -95,30 +92,40 @@ export function QRCodeModal({ open, onClose, formId, formTitle }: QRCodeModalPro
               className="shrink-0"
             >
               {copied ? (
-                <Check className="w-4 h-4 text-success" />
+                <Check className="w-4 h-4 text-accent" />
               ) : (
                 <Copy className="w-4 h-4" />
               )}
             </Button>
           </div>
 
-          <div className="flex gap-3 w-full">
-            <Button onClick={downloadQR} className="flex-1">
-              <Download className="w-4 h-4 ml-2" />
-              تحميل QR
-            </Button>
-            <Button onClick={copyLink} variant="outline" className="flex-1">
-              {copied ? (
-                <>
-                  <Check className="w-4 h-4 ml-2" />
-                  تم النسخ!
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4 ml-2" />
-                  نسخ الرابط
-                </>
-              )}
+          <div className="flex flex-col gap-3 w-full">
+            <div className="flex gap-3">
+              <Button onClick={downloadQR} className="flex-1 gap-2">
+                <Download className="w-4 h-4" />
+                تحميل QR
+              </Button>
+              <Button onClick={copyLink} variant="outline" className="flex-1 gap-2">
+                {copied ? (
+                  <>
+                    <Check className="w-4 h-4 text-accent" />
+                    تم النسخ!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    نسخ الرابط
+                  </>
+                )}
+              </Button>
+            </div>
+            <Button 
+              variant="secondary" 
+              className="w-full gap-2"
+              onClick={() => window.open(form.formUrl, "_blank")}
+            >
+              <ExternalLink className="w-4 h-4" />
+              فتح النموذج في Microsoft Forms
             </Button>
           </div>
         </div>

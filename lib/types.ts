@@ -1,25 +1,20 @@
-export interface FormQuestion {
-  id: string
-  type: "text" | "textarea" | "radio" | "checkbox" | "rating"
-  text: string
-  options?: string[]
-  required?: boolean
-}
-
-export interface SurveyForm {
+export interface MSForm {
   id: string
   title: string
   description: string
-  questions: FormQuestion[]
-  category: string
-  responses: number
+  formUrl: string
   createdAt: string
-  isTemplate?: boolean
+  category: string
+  responsesCount: number
 }
 
-export interface FormResponse {
-  id: string
-  formId: string
-  responses: Record<string, string | string[]>
-  submittedAt: string
-}
+export type FormCategory = "تقييم دورات" | "رضا العملاء" | "استطلاع موظفين" | "ورش عمل" | "فعاليات" | "أخرى"
+
+export const FORM_CATEGORIES: FormCategory[] = [
+  "تقييم دورات",
+  "رضا العملاء", 
+  "استطلاع موظفين",
+  "ورش عمل",
+  "فعاليات",
+  "أخرى"
+]
